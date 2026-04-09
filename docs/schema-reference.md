@@ -1,26 +1,66 @@
 # Schema Reference
 
-Документ фиксирует публичный контракт, экспортируемый из `src/index.ts`.
+Документ фиксирует актуальный публичный контракт, экспортируемый из `src/index.ts`.
 
 ## Публичный API
 
 Основные экспорты:
 - `FormUIFieldSchema`, `FormUIField`
 - `FormUIBaseFieldSchema`, `FormUIBaseField`
-- `FormUIValidation`
+- `FormUIInputFieldSchema`, `FormUIInputField`
 - `FormUISelectFieldSchema`, `FormUISelectField`
 - `FormUISelectSyncFieldSchema`, `FormUISelectSyncField`
 - `FormUISelectAsyncFieldSchema`, `FormUISelectAsyncField`
-- `FormUIInputFieldSchema`, `FormUIInputField`
 - `FormUICheckboxFieldSchema`, `FormUICheckboxField`
 - `FormUISwitchFieldSchema`, `FormUISwitchField`
 - `FormUIRadioGroupFieldSchema`, `FormUIRadioGroupField`
 - `FormUICheckboxGroupFieldSchema`, `FormUICheckboxGroupField`
+- `FormUIInputFieldValidationSchema`, `FormUIInputFieldValidation`
+- `FormUISelectFieldValidationSchema`, `FormUISelectFieldValidation`
+- `FormUICheckboxFieldValidationSchema`, `FormUICheckboxFieldValidation`
+- `FormUISwitchFieldValidationSchema`, `FormUISwitchFieldValidation`
+- `FormUIRadioGroupFieldValidationSchema`, `FormUIRadioGroupFieldValidation`
+- `FormUICheckboxGroupFieldValidationSchema`, `FormUICheckboxGroupFieldValidation`
 - `FormUIOptionSchema`, `FormUIOption`
 - `FormUIOptionsRefSchema`, `FormUIOptionsRef`
 - `FormUIOptionsResponseMapSchema`, `FormUIOptionsResponseMap`
 
-Источником правды по актуальным экспортам является `src/schemas/index.ts`.
+Источником правды по экспортам является `src/schemas/index.ts`.
+
+## Strict-поведение
+
+Ключевые strict-правила:
+- `FormUIBaseFieldSchema` объявлен через `.strict()`.
+- Все `...FieldValidationSchema` объявлены через `.strict()`.
+- Неподдерживаемые ключи в `validation` отклоняются.
+
+Короткие негативные примеры:
+
+```ts
+import {
+  FormUIBaseFieldSchema,
+  FormUISelectFieldValidationSchema,
+  FormUISwitchFieldSchema,
+} from "../src/index.ts";
+
+FormUIBaseFieldSchema.safeParse({
+  name: "code",
+  label: "Код",
+  validation: { required: true },
+}).success; // false
+
+FormUISelectFieldValidationSchema.safeParse({
+  required: true,
+  pattern: "^A",
+}).success; // false
+
+FormUISwitchFieldSchema.safeParse({
+  type: "switch",
+  name: "archived",
+  label: "Архив",
+  validation: { minLength: 1 },
+}).success; // false
+```
 
 ## FormUIBaseFieldSchema
 
@@ -30,9 +70,10 @@
 | --- | --- | --- | --- | --- |
 | `name` | `string` | обязательно | - | Ключ поля в payload формы |
 | `label` | `string` | обязательно | - | Отображаемое название |
-| `validation` | `FormUIValidation` | опционально | - | Набор правил валидации |
 
-## FormUIValidation
+## Validation-схемы по типам полей
+
+### FormUIInputFieldValidationSchema
 
 | Поле | Тип | Обязательность | Ограничения |
 | --- | --- | --- | --- |
@@ -43,10 +84,39 @@
 | `max` | `number` | опционально | - |
 | `pattern` | `string` | опционально | длина строки `>= 1` |
 
-Типичные сочетания:
-- текстовые поля: `required`, `minLength`, `maxLength`, `pattern`
-- числовые поля: `required`, `min`, `max`
-- группы выбора: `required`, `minLength`, `maxLength`
+### FormUISelectFieldValidationSchema
+
+| Поле | Тип | Обязательность | Ограничения |
+| --- | --- | --- | --- |
+| `required` | `boolean` | опционально | - |
+| `minLength` | `number` | опционально | целое, `>= 0` |
+| `maxLength` | `number` | опционально | целое, `>= 0` |
+
+### FormUICheckboxFieldValidationSchema
+
+| Поле | Тип | Обязательность | Ограничения |
+| --- | --- | --- | --- |
+| `required` | `boolean` | опционально | - |
+
+### FormUISwitchFieldValidationSchema
+
+| Поле | Тип | Обязательность | Ограничения |
+| --- | --- | --- | --- |
+| `required` | `boolean` | опционально | - |
+
+### FormUIRadioGroupFieldValidationSchema
+
+| Поле | Тип | Обязательность | Ограничения |
+| --- | --- | --- | --- |
+| `required` | `boolean` | опционально | - |
+
+### FormUICheckboxGroupFieldValidationSchema
+
+| Поле | Тип | Обязательность | Ограничения |
+| --- | --- | --- | --- |
+| `required` | `boolean` | опционально | - |
+| `minLength` | `number` | опционально | целое, `>= 0` |
+| `maxLength` | `number` | опционально | целое, `>= 0` |
 
 ## Поля FormUIField
 
@@ -56,33 +126,33 @@
 
 Схема: `FormUIInputFieldSchema`
 
-| Поле | Тип | Обязательность | По умолчанию | Ограничения/комментарии |
+| Поле | Тип | Обязательность | По умолчанию | Комментарий |
 | --- | --- | --- | --- | --- |
 | `type` | `"input"` | обязательно | - | Дискриминатор |
 | `name` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
 | `label` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
-| `validation` | `FormUIValidation` | опционально | - | Из `FormUIBaseFieldSchema` |
 | `placeholder` | `string` | обязательно | - | Только для `input`/`select` |
+| `validation` | `FormUIInputFieldValidation` | опционально | - | Только input-правила |
 | `inputType` | `"text" \| "email" \| "number" \| "password" \| "tel" \| "url" \| "search"` | опционально | `"text"` | HTML тип поля |
 
 ### select (общая база)
 
 Схема: `FormUIBaseSelectFieldSchema`
 
-| Поле | Тип | Обязательность | По умолчанию | Ограничения/комментарии |
+| Поле | Тип | Обязательность | По умолчанию | Комментарий |
 | --- | --- | --- | --- | --- |
 | `type` | `"select"` | обязательно | - | Дискриминатор |
 | `name` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
 | `label` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
-| `validation` | `FormUIValidation` | опционально | - | Из `FormUIBaseFieldSchema` |
 | `placeholder` | `string` | обязательно | - | Обязателен для `select` |
+| `validation` | `FormUISelectFieldValidation` | опционально | - | Только select-правила |
 | `multiple` | `boolean` | опционально | `false` | Работает и для sync, и для async |
 
 ### select (sync)
 
 Схема: `FormUISelectSyncFieldSchema`
 
-| Поле | Тип | Обязательность | По умолчанию | Ограничения/комментарии |
+| Поле | Тип | Обязательность | По умолчанию | Комментарий |
 | --- | --- | --- | --- | --- |
 | все поля `FormUIBaseSelectFieldSchema` | - | - | - | - |
 | `options` | `FormUIOption[]` | обязательно | - | Статический список опций |
@@ -91,7 +161,7 @@
 
 Схема: `FormUISelectAsyncFieldSchema`
 
-| Поле | Тип | Обязательность | По умолчанию | Ограничения/комментарии |
+| Поле | Тип | Обязательность | По умолчанию | Комментарий |
 | --- | --- | --- | --- | --- |
 | все поля `FormUIBaseSelectFieldSchema` | - | - | - | - |
 | `optionsRef` | `FormUIOptionsRef` | обязательно | - | Правила загрузки опций из API |
@@ -116,48 +186,48 @@
 
 Схема: `FormUICheckboxFieldSchema`
 
-| Поле | Тип | Обязательность | По умолчанию | Ограничения/комментарии |
+| Поле | Тип | Обязательность | По умолчанию | Комментарий |
 | --- | --- | --- | --- | --- |
 | `type` | `"checkbox"` | обязательно | - | Дискриминатор |
 | `name` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
 | `label` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
-| `validation` | `FormUIValidation` | опционально | - | Из `FormUIBaseFieldSchema` |
+| `validation` | `FormUICheckboxFieldValidation` | опционально | - | Только checkbox-правила |
 | `checked` | `boolean` | опционально | `false` | `placeholder` не используется |
 
 ### switch
 
 Схема: `FormUISwitchFieldSchema`
 
-| Поле | Тип | Обязательность | По умолчанию | Ограничения/комментарии |
+| Поле | Тип | Обязательность | По умолчанию | Комментарий |
 | --- | --- | --- | --- | --- |
 | `type` | `"switch"` | обязательно | - | Дискриминатор |
 | `name` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
 | `label` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
-| `validation` | `FormUIValidation` | опционально | - | Из `FormUIBaseFieldSchema` |
+| `validation` | `FormUISwitchFieldValidation` | опционально | - | Только switch-правила |
 | `checked` | `boolean` | опционально | `false` | `placeholder` не используется |
 
 ### radio-group
 
 Схема: `FormUIRadioGroupFieldSchema`
 
-| Поле | Тип | Обязательность | По умолчанию | Ограничения/комментарии |
+| Поле | Тип | Обязательность | По умолчанию | Комментарий |
 | --- | --- | --- | --- | --- |
 | `type` | `"radio-group"` | обязательно | - | Дискриминатор |
 | `name` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
 | `label` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
-| `validation` | `FormUIValidation` | опционально | - | Из `FormUIBaseFieldSchema` |
+| `validation` | `FormUIRadioGroupFieldValidation` | опционально | - | Только radio-group правила |
 | `options` | `FormUIOption[]` | обязательно | - | Выбор одного значения |
 
 ### checkbox-group
 
 Схема: `FormUICheckboxGroupFieldSchema`
 
-| Поле | Тип | Обязательность | По умолчанию | Ограничения/комментарии |
+| Поле | Тип | Обязательность | По умолчанию | Комментарий |
 | --- | --- | --- | --- | --- |
 | `type` | `"checkbox-group"` | обязательно | - | Дискриминатор |
 | `name` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
 | `label` | `string` | обязательно | - | Из `FormUIBaseFieldSchema` |
-| `validation` | `FormUIValidation` | опционально | - | Из `FormUIBaseFieldSchema` |
+| `validation` | `FormUICheckboxGroupFieldValidation` | опционально | - | Только group-правила |
 | `options` | `FormUIOption[]` | обязательно | - | Выбор нескольких значений |
 
 ## FormUIOption

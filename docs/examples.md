@@ -1,20 +1,20 @@
 # Examples
 
-Документ содержит практические шаблоны конфигураций для всех типов полей.
+Документ содержит практические шаблоны конфигураций для всех типов полей, включая примеры strict-ошибок.
 
 ## Карта примеров по типам
 
 | Тип поля | Когда использовать | Ключевые свойства |
 | --- | --- | --- |
 | `input` | Текстовые/числовые значения | `placeholder`, `inputType`, `validation` |
-| `select` (sync) | Выбор из заранее известного списка | `placeholder`, `multiple`, `options` |
-| `select` (async) | Выбор из API-словаря | `placeholder`, `multiple`, `optionsRef` |
-| `checkbox` | Один логический флаг | `checked` |
-| `switch` | Переключатель состояния | `checked` |
-| `radio-group` | Выбор одного из нескольких | `options` |
-| `checkbox-group` | Выбор нескольких из списка | `options` |
+| `select` (sync) | Выбор из заранее известного списка | `placeholder`, `multiple`, `options`, `validation` |
+| `select` (async) | Выбор из API-словаря | `placeholder`, `multiple`, `optionsRef`, `validation` |
+| `checkbox` | Один логический флаг | `checked`, `validation` |
+| `switch` | Переключатель состояния | `checked`, `validation` |
+| `radio-group` | Выбор одного из нескольких | `options`, `validation` |
+| `checkbox-group` | Выбор нескольких из списка | `options`, `validation` |
 
-## Примеры полей (TS)
+## Валидные примеры (TS)
 
 ```ts
 import type { FormUIField } from "../src";
@@ -39,6 +39,9 @@ export const fields: FormUIField[] = [
     label: "Тип документа",
     placeholder: "Выберите тип документа",
     multiple: false,
+    validation: {
+      required: true,
+    },
     options: [
       { label: "Письмо (исх.)", value: "outgoing-letter" },
       { label: "Служебная записка", value: "memo" },
@@ -50,6 +53,11 @@ export const fields: FormUIField[] = [
     label: "Сотрудники",
     placeholder: "Выберите сотрудников",
     multiple: true,
+    validation: {
+      required: true,
+      minLength: 1,
+      maxLength: 20,
+    },
     optionsRef: {
       method: "GET",
       endpoint: "/dictionaries/employees",
@@ -65,17 +73,26 @@ export const fields: FormUIField[] = [
     name: "hasAttachment",
     label: "Только с вложениями",
     checked: true,
+    validation: {
+      required: true,
+    },
   },
   {
     type: "switch",
     name: "isArchived",
     label: "Показывать архивные",
     checked: false,
+    validation: {
+      required: false,
+    },
   },
   {
     type: "radio-group",
     name: "documentState",
     label: "Статус документа",
+    validation: {
+      required: true,
+    },
     options: [
       { label: "Черновик", value: "draft" },
       { label: "Подписан", value: "signed" },
@@ -99,7 +116,7 @@ export const fields: FormUIField[] = [
 ];
 ```
 
-## Примеры полей (JSON)
+## Валидные примеры (JSON)
 
 ### input
 
@@ -127,6 +144,9 @@ export const fields: FormUIField[] = [
   "label": "Приоритет",
   "placeholder": "Выберите приоритет",
   "multiple": false,
+  "validation": {
+    "required": true
+  },
   "options": [
     { "label": "Низкий", "value": "low" },
     { "label": "Средний", "value": "medium" },
@@ -144,6 +164,11 @@ export const fields: FormUIField[] = [
   "label": "Автор",
   "placeholder": "Выберите автора",
   "multiple": false,
+  "validation": {
+    "required": true,
+    "minLength": 1,
+    "maxLength": 1
+  },
   "optionsRef": {
     "method": "GET",
     "endpoint": "/api/users",
@@ -156,17 +181,6 @@ export const fields: FormUIField[] = [
 }
 ```
 
-### checkbox
-
-```json
-{
-  "type": "checkbox",
-  "name": "isPublic",
-  "label": "Публичный документ",
-  "checked": false
-}
-```
-
 ### switch
 
 ```json
@@ -174,42 +188,46 @@ export const fields: FormUIField[] = [
   "type": "switch",
   "name": "notify",
   "label": "Уведомлять по почте",
-  "checked": true
-}
-```
-
-### radio-group
-
-```json
-{
-  "type": "radio-group",
-  "name": "status",
-  "label": "Статус",
-  "options": [
-    { "label": "Черновик", "value": "draft" },
-    { "label": "Опубликован", "value": "published" }
-  ]
-}
-```
-
-### checkbox-group
-
-```json
-{
-  "type": "checkbox-group",
-  "name": "channels",
-  "label": "Каналы",
+  "checked": true,
   "validation": {
-    "required": true,
-    "minLength": 1,
-    "maxLength": 2
-  },
-  "options": [
-    { "label": "Email", "value": "email" },
-    { "label": "СЭД", "value": "sed" },
-    { "label": "Бумага", "value": "paper" }
-  ]
+    "required": false
+  }
 }
+```
+
+## Невалидные примеры (strict)
+
+```ts
+import {
+  FormUIBaseFieldSchema,
+  FormUISelectSyncFieldSchema,
+  FormUISwitchFieldSchema,
+} from "../src/index.ts";
+
+// 1) Base field не принимает validation
+FormUIBaseFieldSchema.safeParse({
+  name: "code",
+  label: "Код",
+  validation: { required: true },
+}).success; // false
+
+// 2) Switch принимает только required в validation
+FormUISwitchFieldSchema.safeParse({
+  type: "switch",
+  name: "isArchived",
+  label: "Показывать архивные",
+  validation: { minLength: 1 },
+}).success; // false
+
+// 3) Select не принимает pattern в validation
+FormUISelectSyncFieldSchema.safeParse({
+  type: "select",
+  name: "priority",
+  label: "Приоритет",
+  placeholder: "Выберите приоритет",
+  validation: { pattern: "^high$" },
+  options: [{ label: "Высокий", value: "high" }],
+}).success; // false
 ```
 
 ## Разбор use-case `reports`
@@ -219,8 +237,8 @@ export const fields: FormUIField[] = [
 Что демонстрирует сценарий:
 - одновременно `select` sync и async;
 - дефолтные/явные флаги `multiple` и `checked`;
-- использование `validation` для текстов и групп;
-- общий формат, готовый для валидации через `FormUIFieldSchema.array()`.
+- field-specific `validation` для разных типов полей;
+- формат, готовый для валидации через `FormUIFieldSchema.array()`.
 
 Рекомендуемый паттерн интеграции:
 1. Хранить конфиг формы как `FormUIField[]`.

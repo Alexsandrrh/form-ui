@@ -5,7 +5,8 @@
 Пакет помогает:
 - хранить единый контракт полей формы;
 - валидировать JSON/TS-конфиги до рендера UI;
-- типобезопасно работать с разными типами полей через union-модель `FormUIField`.
+- типобезопасно работать с разными типами полей через union-модель `FormUIField`;
+- применять field-specific правила `validation` для каждого типа поля.
 
 ## Быстрый старт
 
@@ -27,12 +28,20 @@ const fields: FormUIField[] = [
     label: "Заголовок",
     placeholder: "Введите заголовок",
     inputType: "text",
+    validation: {
+      required: true,
+      minLength: 3,
+      maxLength: 120,
+    },
   },
   {
     type: "checkbox",
     name: "published",
     label: "Опубликовано",
     checked: false,
+    validation: {
+      required: true,
+    },
   },
 ];
 

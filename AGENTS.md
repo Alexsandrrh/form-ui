@@ -6,7 +6,7 @@ This repository is a Bun + TypeScript package focused on Form UI schemas.
 - Source code lives in `src/`.
 - Public API entrypoint is `src/index.ts` (re-exporting from `src/schemas/index.ts`).
 - Schema modules live in `src/schemas/`.
-- Tests currently live in `src/index.test.ts`.
+- Tests live in `src/schemas/__tests__/` (for example `src/schemas/__tests__/form-ui-input-field.test.ts`).
 - Usage examples live in `use-cases/` (for example `use-cases/reports.ts`).
 - Root tooling files: `package.json`, `tsconfig.json`, `bun.lock`.
 
@@ -15,16 +15,27 @@ This repository is a Bun + TypeScript package focused on Form UI schemas.
 - Each schema file should export:
   - `...Schema` with `meta({ id, description })`
   - matching type `...` via `z.infer<typeof ...Schema>`
+- Field-level validation schemas are defined in dedicated modules:
+  - file pattern: `form-ui-*-field-validation.ts`
+  - export pattern: `...FieldValidationSchema` and matching `...FieldValidation` type
+- Common reusable validation rules live in `src/schemas/form-ui-validation-rules.ts`.
 - `src/schemas/index.ts` is the schema barrel; keep it in sync when adding/removing schema modules.
 
 ### Field Model Rules
-- `FormUIBaseFieldSchema` contains only common field properties: `name`, `label`.
+- `FormUIBaseFieldSchema` contains only common field properties: `name`, `label` (no `validation` on base schema).
 - `placeholder` is **not** global:
   - required for `input`
   - required for `select`
   - not used for `checkbox` / `switch`
 - `select` supports `multiple: boolean` (default `false`) for both sync and async variants.
 - `checkbox` and `switch` include `checked: boolean` (default `false`).
+- Validation rules are field-specific and must reject unsupported keys:
+  - `input`: `required`, `minLength`, `maxLength`, `min`, `max`, `pattern`
+  - `select`: `required`, `minLength`, `maxLength`
+  - `checkbox`: `required`
+  - `switch`: `required`
+  - `radio-group`: `required`
+  - `checkbox-group`: `required`, `minLength`, `maxLength`
 
 ## Build, Test, and Development Commands
 Use Bun for all local workflows.
@@ -49,7 +60,8 @@ Write TypeScript with strict typing and ES module syntax.
 Use Bun’s built-in test runner via `bun:test`. Prefer fast unit tests and keep them close to the code they verify, for example `src/form-parser.test.ts`. Cover new behavior and edge cases before opening a PR. Until coverage tooling is added, treat meaningful coverage of changed code as the baseline expectation.
 
 When changing schema contracts:
-- update/add tests in `src/index.test.ts`
+- update/add tests in `src/schemas/__tests__/` (one test module per schema file)
+- include strict-behavior checks for `validation` (unsupported keys must fail)
 - update examples in `use-cases/` if affected
 - run both `bun test` and `bunx tsc --noEmit`
 
