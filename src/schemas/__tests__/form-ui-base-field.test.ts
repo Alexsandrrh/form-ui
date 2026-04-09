@@ -7,10 +7,19 @@ describe("FormUIBaseFieldSchema", () => {
     const result = FormUIBaseFieldSchema.safeParse({
       name: "title",
       label: "Заголовок",
-      validation: { required: true },
     });
 
     expect(result.success).toBe(true);
+  });
+
+  test("rejects unknown keys", () => {
+    expect(
+      FormUIBaseFieldSchema.safeParse({
+        name: "title",
+        label: "Заголовок",
+        validation: { required: true },
+      }).success,
+    ).toBe(false);
   });
 
   test("rejects field without name", () => {

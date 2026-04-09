@@ -58,4 +58,27 @@ describe("FormUISelectAsyncFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("rejects unsupported validation keys for async select", () => {
+    expect(
+      FormUISelectAsyncFieldSchema.safeParse({
+        type: "select",
+        name: "employee",
+        label: "Сотрудник",
+        placeholder: "Выберите сотрудника",
+        validation: {
+          pattern: "^A",
+        },
+        optionsRef: {
+          method: "GET",
+          endpoint: "/api/employees",
+          responseMap: {
+            itemsPath: null,
+            valueField: "id",
+            labelField: "name",
+          },
+        },
+      }).success,
+    ).toBe(false);
+  });
 });

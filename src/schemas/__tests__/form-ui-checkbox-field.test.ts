@@ -39,4 +39,17 @@ describe("FormUICheckboxFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("rejects unsupported validation keys for checkbox", () => {
+    expect(
+      FormUICheckboxFieldSchema.safeParse({
+        type: "checkbox",
+        name: "hasAttachment",
+        label: "Только с вложениями",
+        validation: {
+          minLength: 1,
+        },
+      }).success,
+    ).toBe(false);
+  });
 });

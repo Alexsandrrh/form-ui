@@ -1,6 +1,7 @@
 import z from "zod";
 
 import { FormUIBaseFieldSchema } from "./form-ui-base-field";
+import { FormUISelectFieldValidationSchema } from "./form-ui-select-field-validation";
 
 export const FormUIBaseSelectFieldSchema = FormUIBaseFieldSchema.extend({
   type: z.literal("select").meta({
@@ -8,6 +9,9 @@ export const FormUIBaseSelectFieldSchema = FormUIBaseFieldSchema.extend({
   }),
   placeholder: z.string().meta({
     description: "Подсказка, когда значение не выбрано.",
+  }),
+  validation: FormUISelectFieldValidationSchema.optional().meta({
+    description: "Правила валидации для поля выбора.",
   }),
   multiple: z.boolean().default(false).meta({
     description: "Разрешает выбор нескольких значений.",

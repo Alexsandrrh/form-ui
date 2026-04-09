@@ -45,4 +45,19 @@ describe("FormUISelectSyncFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("rejects unsupported validation keys for select", () => {
+    expect(
+      FormUISelectSyncFieldSchema.safeParse({
+        type: "select",
+        name: "priority",
+        label: "Приоритет",
+        placeholder: "Выберите приоритет",
+        validation: {
+          pattern: "^high$",
+        },
+        options: [{ label: "Высокий", value: "high" }],
+      }).success,
+    ).toBe(false);
+  });
 });

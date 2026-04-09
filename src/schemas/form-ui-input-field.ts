@@ -1,6 +1,7 @@
 import z from "zod";
 
 import { FormUIBaseFieldSchema } from "./form-ui-base-field";
+import { FormUIInputFieldValidationSchema } from "./form-ui-input-field-validation";
 
 export const FormUIInputFieldSchema = FormUIBaseFieldSchema.extend({
   type: z.literal("input").meta({
@@ -8,6 +9,9 @@ export const FormUIInputFieldSchema = FormUIBaseFieldSchema.extend({
   }),
   placeholder: z.string().meta({
     description: "Подсказка, когда значение поля не заполнено.",
+  }),
+  validation: FormUIInputFieldValidationSchema.optional().meta({
+    description: "Правила валидации для поля ввода.",
   }),
   inputType: z
     .enum(["text", "email", "number", "password", "tel", "url", "search"])

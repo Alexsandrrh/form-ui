@@ -39,4 +39,32 @@ describe("FormUIBaseSelectFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("allows only select-specific validation keys", () => {
+    expect(
+      FormUIBaseSelectFieldSchema.safeParse({
+        type: "select",
+        name: "department",
+        label: "Подразделение",
+        placeholder: "Выберите подразделение",
+        validation: {
+          required: true,
+          minLength: 1,
+          maxLength: 3,
+        },
+      }).success,
+    ).toBe(true);
+
+    expect(
+      FormUIBaseSelectFieldSchema.safeParse({
+        type: "select",
+        name: "department",
+        label: "Подразделение",
+        placeholder: "Выберите подразделение",
+        validation: {
+          pattern: "^dep",
+        },
+      }).success,
+    ).toBe(false);
+  });
 });

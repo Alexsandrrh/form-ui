@@ -66,4 +66,17 @@ describe("FormUIFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("rejects invalid validation rules for known type", () => {
+    expect(
+      FormUIFieldSchema.safeParse({
+        type: "switch",
+        name: "isArchived",
+        label: "Показывать архивные",
+        validation: {
+          minLength: 1,
+        },
+      }).success,
+    ).toBe(false);
+  });
 });

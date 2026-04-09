@@ -37,4 +37,32 @@ describe("FormUICheckboxGroupFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("allows group-length rules and rejects text pattern rule", () => {
+    expect(
+      FormUICheckboxGroupFieldSchema.safeParse({
+        type: "checkbox-group",
+        name: "channels",
+        label: "Каналы",
+        validation: {
+          required: true,
+          minLength: 1,
+          maxLength: 2,
+        },
+        options: [{ label: "Email", value: "email" }],
+      }).success,
+    ).toBe(true);
+
+    expect(
+      FormUICheckboxGroupFieldSchema.safeParse({
+        type: "checkbox-group",
+        name: "channels",
+        label: "Каналы",
+        validation: {
+          pattern: "^email$",
+        },
+        options: [{ label: "Email", value: "email" }],
+      }).success,
+    ).toBe(false);
+  });
 });

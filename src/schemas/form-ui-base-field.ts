@@ -1,5 +1,4 @@
 import z from "zod";
-import { FormUIValidation } from "./form-ui-validation";
 
 export const FormUIBaseFieldSchema = z
   .object({
@@ -9,10 +8,8 @@ export const FormUIBaseFieldSchema = z
     label: z.string().meta({
       description: "Отображаемое название поля.",
     }),
-    validation: FormUIValidation.optional().meta({
-      description: "Правила валидации для значения поля.",
-    }),
   })
+  .strict()
   .meta({
     id: "FormUIBaseFieldSchema",
     description: "Общие свойства любого поля формы.",

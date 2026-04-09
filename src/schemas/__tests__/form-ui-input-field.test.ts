@@ -40,4 +40,18 @@ describe("FormUIInputFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("rejects unsupported validation keys for input", () => {
+    expect(
+      FormUIInputFieldSchema.safeParse({
+        type: "input",
+        name: "title",
+        label: "Заголовок",
+        placeholder: "Введите заголовок",
+        validation: {
+          checked: true,
+        },
+      }).success,
+    ).toBe(false);
+  });
 });

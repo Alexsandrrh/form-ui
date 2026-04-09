@@ -37,4 +37,18 @@ describe("FormUIRadioGroupFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("rejects unsupported validation keys for radio-group", () => {
+    expect(
+      FormUIRadioGroupFieldSchema.safeParse({
+        type: "radio-group",
+        name: "state",
+        label: "Статус",
+        validation: {
+          maxLength: 1,
+        },
+        options: [{ label: "Черновик", value: "draft" }],
+      }).success,
+    ).toBe(false);
+  });
 });

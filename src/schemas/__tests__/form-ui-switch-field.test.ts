@@ -39,4 +39,17 @@ describe("FormUISwitchFieldSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  test("rejects unsupported validation keys for switch", () => {
+    expect(
+      FormUISwitchFieldSchema.safeParse({
+        type: "switch",
+        name: "isArchived",
+        label: "Показывать архивные",
+        validation: {
+          minLength: 1,
+        },
+      }).success,
+    ).toBe(false);
+  });
 });
