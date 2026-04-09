@@ -1,0 +1,94 @@
+# Getting Started
+
+## Назначение пакета
+
+`form-ui` описывает контракт полей формы через `zod`-схемы и экспортирует соответствующие TypeScript-типы.
+
+Ключевая точка входа:
+- `src/index.ts` -> реэкспорт всего публичного API из `src/schemas/index.ts`.
+
+## Установка и импорт
+
+```bash
+bun install
+```
+
+```ts
+import {
+  FormUIFieldSchema,
+  type FormUIField,
+  FormUIValidation,
+} from "../src/index.ts";
+```
+
+## Базовая модель полей
+
+`FormUIField` — union следующих типов:
+- `input`
+- `select` (`sync` и `async` варианты)
+- `checkbox`
+- `switch`
+- `radio-group`
+- `checkbox-group`
+
+Общее правило модели:
+- `FormUIBaseFieldSchema` содержит только общие свойства поля: `name`, `label`, `validation?`.
+
+Важные инварианты:
+- `placeholder` обязателен только для `input` и `select`.
+- Для `checkbox` и `switch` используется `checked` с дефолтом `false`.
+- Для `select` используется `multiple` с дефолтом `false`.
+
+## Валидация конфигурации формы
+
+### Валидация массива полей
+
+```ts
+import { FormUIFieldSchema, type FormUIField } from "../src/index.ts";
+
+const config: FormUIField[] = [
+  {
+    type: "input",
+    name: "name",
+    label: "Наименование",
+    placeholder: "Введите наименование",
+  },
+  {
+    type: "select",
+    name: "documentType",
+    label: "Тип документа",
+    placeholder: "Выберите тип документа",
+    options: [
+      { label: "Письмо", value: "letter" },
+      { label: "Служебная записка", value: "memo" },
+    ],
+  },
+];
+
+const result = FormUIFieldSchema.array().safeParse(config);
+
+if (!result.success) {
+  console.error(result.error.format());
+}
+```
+
+### Валидация правил `validation`
+
+```ts
+import { FormUIValidation } from "../src/index.ts";
+
+const validation = FormUIValidation.parse({
+  required: true,
+  minLength: 3,
+  maxLength: 120,
+  pattern: "^[A-Za-zА-Яа-я0-9\\s.-]+$",
+});
+
+console.log(validation);
+```
+
+## Что читать дальше
+
+- Полный контракт каждого типа поля: [schema-reference.md](./schema-reference.md)
+- Готовые шаблоны и разбор `use-cases/reports.ts`: [examples.md](./examples.md)
+- Процесс изменений и поддержки документации: [contributing.md](./contributing.md)
