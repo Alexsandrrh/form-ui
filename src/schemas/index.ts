@@ -12,6 +12,7 @@ export { FormUIInputFieldSchema } from "./form-ui-input-field";
 export type { FormUIInputField } from "./form-ui-input-field";
 export { FormUIOptionSchema } from "./form-ui-option";
 export type { FormUIOption } from "./form-ui-option";
+export { FormUIValidation } from "./form-ui-validation";
 export { FormUIOptionsRefSchema } from "./form-ui-options-ref";
 export type { FormUIOptionsRef } from "./form-ui-options-ref";
 export { FormUIOptionsResponseMapSchema } from "./form-ui-options-response-map";
