@@ -49,4 +49,38 @@ const filters: FormUIField[] = [
     label: "Показывать архивные",
     checked: false,
   },
+  {
+    type: "radio-group",
+    name: "documentState",
+    label: "Статус документа",
+    options: [
+      {
+        label: "Черновик",
+        value: "draft",
+      },
+      {
+        label: "Подписан",
+        value: "signed",
+      },
+    ],
+  },
+  {
+    type: "checkbox-group",
+    name: "channels",
+    label: "Каналы отправки",
+    options: [
+      {
+        label: "Email",
+        value: "email",
+      },
+      {
+        label: "СЭД",
+        value: "sed",
+      },
+      {
+        label: "Бумага",
+        value: "paper",
+      },
+    ],
+  },
 ];

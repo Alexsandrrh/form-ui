@@ -11,7 +11,7 @@ export const FormUIOptionSchema = z
   })
   .meta({
     id: "FormUIOptionSchema",
-    description: "Элемент списка опций для синхронного select.",
+    description: "Элемент списка опций для select и group-полей.",
   });
 
 export type FormUIOption = z.infer<typeof FormUIOptionSchema>;
